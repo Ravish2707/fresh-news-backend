@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const Feedback = require('../model/Feedback');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const News = require('../model/News');
 
 app.use(cors());
 app.use(express.json());
@@ -59,6 +60,21 @@ app.post('/sendFeedback', async(req, res) => {
     const feedback = await Feedback.create( { name, email, phone, description });
     console.log(feedback);
     res.status(200).json({ message: "You're feedback is sent" })
+})
+
+app.post('/saveArticles', async(req, res) => {
+    const { title, description, author, date, imageUrl } = req.body;
+    if(!title || !description || !author || !date || !imageUrl) {
+        return res.status(400).json({ message: "All Fields are required"})
+    }
+
+    const news = await News.create({ title, description, author, date, imageUrl });
+    res.status(200).json({ message: "Article saved successfully"});
+})
+
+app.get('/getAllArticles', async(req, res) => {
+    const news = await News.find();
+    res.status(200).json(news);
 })
 
 app.listen(5000, () => {
