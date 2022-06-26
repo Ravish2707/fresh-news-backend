@@ -21,6 +21,10 @@ const NewsSchema = new Schema({
     imageUrl: {
         type: String,
         required: true
+    },
+    url: {
+        type: String,
+        required: true
     }
 })
 

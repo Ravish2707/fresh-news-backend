@@ -14,19 +14,26 @@ app.use(express.json());
 connectToMongoDb();
 app.post("/createAccount", async(req, res) => {
     const { name, email, password, phone } =  req.body;
+    console.log(name, email, password, phone)
+
     if(!name || !email || !password || !phone) {
         return res.status(400).json({ message: "All fields are required"});
     }
 
-    let user = await User.find({ email });
+    
+    let user = await User.findOne({ email });
     if(user) {
         return res.status(400).json({ message: "User Already exists"})
     }
 
-    const hashPassword = await bcrypt.hash(password, 100);
+    console.log(user);
+    const hashPassword = await bcrypt.hash(password, 10);
+    console.log(hashPassword);
     user = await User.create({ name, email, password: hashPassword, phone });
     const accessToken = await jwt.sign({ id: user._id }, "fresh_news_secret_key");
     
+    console.log(accessToken);
+    console.log(user);
     res.status(200).json({ accessToken });
 });
 
@@ -36,6 +43,7 @@ app.post('/login', async(req, res) => {
     if(!email || !password) {
         return res.status(400).json({ message: "All Fields are required"});
     }
+    console.log(email, password);
 
     const user = await User.find({ email });
     if(!user) {
@@ -48,6 +56,7 @@ app.post('/login', async(req, res) => {
     }
 
     const accessToken = jwt.sign({ id: user_id}, "fresh_news_secret_key");
+    console.log(accessToken);
     res.status(200).json({ accessToken });
 })
 
@@ -57,18 +66,22 @@ app.post('/sendFeedback', async(req, res) => {
         return res.status(400).json({ message: "All fields are required"})
     }
 
+    console.log(name, email, phone, description);
     const feedback = await Feedback.create( { name, email, phone, description });
     console.log(feedback);
     res.status(200).json({ message: "You're feedback is sent" })
 })
 
 app.post('/saveArticles', async(req, res) => {
-    const { title, description, author, date, imageUrl } = req.body;
-    if(!title || !description || !author || !date || !imageUrl) {
+    const { title, description, author, date, imageUrl, url } = req.body;
+    if(!title || !description || !author || !date || !imageUrl || !url) {
         return res.status(400).json({ message: "All Fields are required"})
     }
 
-    const news = await News.create({ title, description, author, date, imageUrl });
+    console.log(title, description, author, date, imageUrl, url);
+    const news = await News.create({ title, description, author, date, imageUrl, url });
+
+    console.log(news);
     res.status(200).json({ message: "Article saved successfully"});
 })
 
